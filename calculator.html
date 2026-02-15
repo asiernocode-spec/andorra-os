@@ -2,21 +2,102 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculadora - ANDORRA-OS</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <title>Calculadora Fiscal – AndorraOS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <div id="root"></div>
+  <div class="page">
+    <div class="page-inner">
 
-  <script>
-    function App() {
-      return React.createElement("h1", null, "Calculadora ANDORRA-OS");
-    }
+      <section class="left">
+        <div class="left-inner">
 
-    ReactDOM.createRoot(document.getElementById("root")).render(
-      React.createElement(App)
-    );
-  </script>
+          <div class="badge">
+            <div class="badge-dot"></div>
+            <span>Simulación Fiscal</span>
+            <div class="badge-divider"></div>
+            <span>AndorraOS 2026</span>
+          </div>
+
+          <div class="logo-row">
+            <div class="logo-main">
+              <div class="logo-icon"><span>AO</span></div>
+              <div class="logo-text">
+                <div class="logo-title">ANDORRAOS</div>
+                <div class="logo-subtitle">CALCULADORA FISCAL</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="title-block">
+            <div class="title-main">
+              Calculadora fiscal<br />
+              <span>España vs Andorra</span>
+            </div>
+            <div class="title-sub">
+              Introduce tus datos y obtén una estimación fiscal comparativa.
+            </div>
+          </div>
+
+          <div class="form-block">
+
+            <label class="form-label">Ingresos anuales (€)</label>
+            <input id="income" type="number" class="form-input" placeholder="Ej: 85000" />
+
+            <label class="form-label">Actividad</label>
+            <select id="activity" class="form-input">
+              <option value="autonomo">Autónomo</option>
+              <option value="empresa">Empresa</option>
+            </select>
+
+            <label class="form-label">Parroquia (Andorra)</label>
+            <select id="parish" class="form-input">
+              <option value="andorra-la-vella">Andorra la Vella</option>
+              <option value="escales-engordany">Escaldes-Engordany</option>
+              <option value="la-massana">La Massana</option>
+              <option value="ordino">Ordino</option>
+              <option value="sant-julia">Sant Julià de Lòria</option>
+              <option value="encamp">Encamp</option>
+              <option value="canillo">Canillo</option>
+            </select>
+
+            <button class="btn-primary" onclick="calculate()">
+              <span class="icon">➜</span>
+              <span>Calcular</span>
+            </button>
+
+          </div>
+
+        </div>
+      </section>
+
+      <section class="right">
+        <div class="right-inner">
+
+          <div class="right-header">
+            <div class="right-title">Resultados</div>
+            <div class="right-tag">Comparativa 2026</div>
+          </div>
+
+          <div id="results" class="results-box">
+            <p class="right-subtitle">Introduce tus datos y pulsa calcular.</p>
+          </div>
+
+          <div class="cta-block">
+            <a href="index.html" class="btn-primary">
+              <span class="icon">←</span>
+              <span>Volver</span>
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
