@@ -45,18 +45,27 @@
             </div>
           </div>
 
-          <!-- CTA -->
+          <!-- LEAD FORM -->
           <div class="cta-block">
-            <a href="calculator.html" class="btn-primary">
-              <span class="icon">➜</span>
-              <span>Iniciar análisis inteligente</span>
-            </a>
+            <form class="lead-form" onsubmit="handleLeadSubmit(event)">
+              <input
+                type="email"
+                name="email"
+                id="lead-email"
+                placeholder="Tu email para recibir el informe"
+                required
+              />
+              <button type="submit" class="btn-primary">
+                <span class="icon">➜</span>
+                <span>Iniciar análisis</span>
+              </button>
+            </form>
             <div class="cta-note">
-              100% gratuito · Datos actualizados 2026
+              Informe fiscal personalizado · 100% gratuito
             </div>
           </div>
 
-          <!-- TRUST ELEMENTS -->
+          <!-- TRUST -->
           <div class="trust-block">
             <div class="trust-title">Confían en AndorraOS</div>
             <div class="trust-logos">
@@ -81,7 +90,7 @@
 
           <div class="grid">
 
-            <!-- ANDORRA CARD -->
+            <!-- ANDORRA -->
             <div class="card">
               <div class="card-inner">
                 <div class="card-label">IRPF Andorra</div>
@@ -96,7 +105,7 @@
               </div>
             </div>
 
-            <!-- SPAIN CARD -->
+            <!-- ESPAÑA -->
             <div class="card">
               <div class="card-inner">
                 <div class="card-label">IRPF España</div>
@@ -113,7 +122,6 @@
 
           </div>
 
-          <!-- CTA -->
           <div class="cta-block">
             <a href="calculator.html" class="btn-primary">
               <span class="icon">➜</span>
@@ -121,21 +129,20 @@
             </a>
           </div>
 
-          <!-- EXTRA SECTION -->
-          <div class="extra-info">
-            <div class="extra-title">¿Por qué AndorraOS?</div>
-            <ul class="extra-list">
-              <li>Análisis fiscal preciso y actualizado</li>
-              <li>Comparativa real entre países</li>
-              <li>Simulación de autónomo y empresa</li>
-              <li>Recomendaciones basadas en datos</li>
-            </ul>
-          </div>
-
         </div>
       </section>
 
     </div>
   </div>
+
+  <script>
+    function handleLeadSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('lead-email').value;
+      localStorage.setItem('andorraos_email', email);
+      window.location.href = 'calculator.html';
+    }
+  </script>
+
 </body>
 </html>
