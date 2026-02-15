@@ -1,12 +1,1714 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>ANDORRA-OS</title>
-</head>
-<body>
-  <h1>Bienvenido a ANDORRA-OS</h1>
-  <p>Web app para gestión y digitalización de negocios.</p>
-  <a href="calculator.html">Ir a la calculadora</a>
-</body>
-</html>
+import React, { useState } from 'react';
+import { Calculator, TrendingDown, Home, Users, FileText, CheckCircle, ArrowRight, Mail, Download, Star, Shield, Zap, MapPin, Building2, Briefcase, Globe, LineChart } from 'lucide-react';
+
+const AndorraOSCalculator = () => {
+  const [currentView, setCurrentView] = useState('landing');
+  const [formData, setFormData] = useState({
+    ingresos: '',
+    pais: '',
+    actividad: '',
+    estructura: '',
+    parroquia: '',
+    email: ''
+  });
+  const [calculationResults, setCalculationResults] = useState(null);
+
+  const parroquias = [
+    { value: 'andorra-la-vella', label: 'Andorra la Vella', alquiler: 1200 },
+    { value: 'escaldes-engordany', label: 'Escaldes-Engordany', alquiler: 1100 },
+    { value: 'encamp', label: 'Encamp', alquiler: 900 },
+    { value: 'la-massana', label: 'La Massana', alquiler: 950 },
+    { value: 'ordino', label: 'Ordino', alquiler: 850 },
+    { value: 'canillo', label: 'Canillo', alquiler: 800 },
+    { value: 'sant-julia', label: 'Sant Julià de Lòria', alquiler: 750 }
+  ];
+
+  const calcularImpuestos = () => {
+    const ingresos = parseFloat(formData.ingresos) || 0;
+    const parroquia = parroquias.find(p => p.value === formData.parroquia) || parroquias[0];
+    
+    let impuestos = {};
+    
+    if (formData.estructura === 'autonomo') {
+      let irpf = 0;
+      if (ingresos <= 24000) {
+        irpf = 0;
+      } else if (ingresos <= 40000) {
+        irpf = (ingresos - 24000) * 0.05;
+      } else {
+        irpf = (16000 * 0.05) + ((ingresos - 40000) * 0.10);
+      }
+      
+      impuestos = {
+        irpf: irpf,
+        cuotaAutonomos: 450 * 12,
+        total: irpf + (450 * 12)
+      };
+    } else {
+      const impuestoSociedades = ingresos * 0.10;
+      const sueldoRecomendado = Math.min(ingresos * 0.4, 40000);
+      
+      let irpfSueldo = 0;
+      if (sueldoRecomendado <= 24000) {
+        irpfSueldo = 0;
+      } else if (sueldoRecomendado <= 40000) {
+        irpfSueldo = (sueldoRecomendado - 24000) * 0.05;
+      } else {
+        irpfSueldo = (16000 * 0.05) + ((sueldoRecomendado - 40000) * 0.10);
+      }
+      
+      impuestos = {
+        sociedades: impuestoSociedades,
+        irpfSueldo: irpfSueldo,
+        cuotaAutonomos: 450 * 12,
+        constitucion: 800,
+        gestoria: 1200,
+        total: impuestoSociedades + irpfSueldo + (450 * 12)
+      };
+    }
+
+    const costeVida = {
+      alquiler: parroquia.alquiler * 12,
+      comida: 400 * 12,
+      servicios: 150 * 12,
+      transporte: 100 * 12,
+      ocio: 300 * 12,
+      total: (parroquia.alquiler + 400 + 150 + 100 + 300) * 12
+    };
+
+    let impuestosEspana = 0;
+    if (formData.estructura === 'autonomo') {
+      if (ingresos <= 12450) {
+        impuestosEspana = ingresos * 0.19;
+      } else if (ingresos <= 20200) {
+        impuestosEspana = 12450 * 0.19 + (ingresos - 12450) * 0.24;
+      } else if (ingresos <= 35200) {
+        impuestosEspana = 12450 * 0.19 + 7750 * 0.24 + (ingresos - 20200) * 0.30;
+      } else {
+        impuestosEspana = 12450 * 0.19 + 7750 * 0.24 + 15000 * 0.30 + (ingresos - 35200) * 0.37;
+      }
+      impuestosEspana += 294 * 12;
+    } else {
+      impuestosEspana = ingresos * 0.25;
+    }
+
+    const ahorro = impuestosEspana - impuestos.total;
+    const ahorroMensual = ahorro / 12;
+
+    setCalculationResults({
+      impuestos,
+      costeVida,
+      impuestosEspana,
+      ahorro,
+      ahorroMensual,
+      parroquia: parroquia.label,
+      ingresos,
+      estructura: formData.estructura
+    });
+
+    setCurrentView('results');
+  };
+
+  const LandingPage = () => (
+    <div className="landing">
+      <nav className="navbar">
+        <div className="nav-content">
+          <div className="logo">
+            <Shield size={28} strokeWidth={2.5} />
+            <span>AndorraOS</span>
+          </div>
+          <button className="btn-primary" onClick={() => setCurrentView('calculator')}>
+            Iniciar Análisis
+          </button>
+        </div>
+      </nav>
+
+      <section className="hero">
+        <div className="hero-content">
+          <div className="hero-badge">
+            <Building2 size={16} />
+            <span>Solución Profesional de Planificación Fiscal</span>
+          </div>
+          <h1>
+            Análisis Fiscal Integral<br/>
+            <span className="gradient-text">Principado de Andorra</span>
+          </h1>
+          <p className="hero-subtitle">
+            Herramienta profesional de cálculo fiscal y análisis de viabilidad para profesionales 
+            y empresas que consideran establecer su residencia fiscal en Andorra. Datos actualizados 2026.
+          </p>
+          <button className="btn-hero" onClick={() => setCurrentView('calculator')}>
+            <Calculator size={20} />
+            Iniciar Análisis Gratuito
+            <ArrowRight size={20} />
+          </button>
+          
+          <div className="trust-indicators">
+            <div className="trust-item">
+              <CheckCircle size={18} />
+              <span>Normativa Oficial 2026</span>
+            </div>
+            <div className="trust-item">
+              <CheckCircle size={18} />
+              <span>Análisis Completo</span>
+            </div>
+            <div className="trust-item">
+              <CheckCircle size={18} />
+              <span>Informe Detallado PDF</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-stats">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <TrendingDown size={24} />
+            </div>
+            <div className="stat-value">0-10%</div>
+            <div className="stat-label">Impuesto sobre la Renta (IRPF)</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Building2 size={24} />
+            </div>
+            <div className="stat-value">10%</div>
+            <div className="stat-label">Impuesto de Sociedades</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">
+              <LineChart size={24} />
+            </div>
+            <div className="stat-value">70%</div>
+            <div className="stat-label">Ahorro Fiscal Promedio</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="features">
+        <h2>Análisis Integral</h2>
+        <div className="features-grid">
+          <div className="feature-box">
+            <div className="feature-icon">
+              <Calculator size={32} />
+            </div>
+            <h3>Cálculo Fiscal Preciso</h3>
+            <p>Estimación de IRPF, impuesto de sociedades y cotizaciones sociales basada en la normativa fiscal vigente 2026 del Principado de Andorra.</p>
+          </div>
+          <div className="feature-box">
+            <div className="feature-icon">
+              <Home size={32} />
+            </div>
+            <h3>Análisis de Coste de Vida</h3>
+            <p>Evaluación detallada del coste de vida por parroquia, incluyendo vivienda, servicios y gastos operativos mensuales.</p>
+          </div>
+          <div className="feature-box">
+            <div className="feature-icon">
+              <Globe size={32} />
+            </div>
+            <h3>Comparativa Internacional</h3>
+            <p>Análisis comparativo de la carga fiscal entre Andorra y principales países europeos para una toma de decisiones informada.</p>
+          </div>
+          <div className="feature-box">
+            <div className="feature-icon">
+              <FileText size={32} />
+            </div>
+            <h3>Plan de Implementación</h3>
+            <p>Hoja de ruta completa con plazos, requisitos legales y documentación necesaria para la relocalización empresarial.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <div className="cta-box">
+          <h2>Solicite su Análisis Fiscal Personalizado</h2>
+          <p>Obtenga una evaluación profesional de su situación fiscal y las ventajas de establecerse en Andorra.</p>
+          <button className="btn-hero" onClick={() => setCurrentView('calculator')}>
+            Iniciar Análisis
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+
+  const CalculatorForm = () => (
+    <div className="calculator-view">
+      <div className="calculator-header">
+        <button className="back-btn" onClick={() => setCurrentView('landing')}>
+          ← Volver
+        </button>
+        <div className="logo-small">
+          <Shield size={22} strokeWidth={2.5} />
+          <span>AndorraOS</span>
+        </div>
+      </div>
+
+      <div className="calculator-container">
+        <div className="calculator-intro">
+          <h1>Análisis Fiscal Personalizado 2026</h1>
+          <p>Complete el formulario para recibir un informe detallado de su situación fiscal</p>
+        </div>
+
+        <div className="form-container">
+          <div className="form-group">
+            <label>
+              <span className="label-number">1</span>
+              Ingresos Anuales Brutos
+            </label>
+            <div className="input-wrapper">
+              <input
+                type="number"
+                placeholder="Ejemplo: 60000"
+                value={formData.ingresos}
+                onChange={(e) => setFormData({ ...formData, ingresos: e.target.value })}
+              />
+              <span className="input-suffix">€/año</span>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <span className="label-number">2</span>
+              País de Origen
+            </label>
+            <select
+              value={formData.pais}
+              onChange={(e) => setFormData({ ...formData, pais: e.target.value })}
+            >
+              <option value="">Seleccione su país</option>
+              <option value="espana">España</option>
+              <option value="francia">Francia</option>
+              <option value="uk">Reino Unido</option>
+              <option value="alemania">Alemania</option>
+              <option value="italia">Italia</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <span className="label-number">3</span>
+              Sector de Actividad
+            </label>
+            <select
+              value={formData.actividad}
+              onChange={(e) => setFormData({ ...formData, actividad: e.target.value })}
+            >
+              <option value="">Seleccione su actividad</option>
+              <option value="tech">Tecnología y Software</option>
+              <option value="consulting">Consultoría Profesional</option>
+              <option value="ecommerce">Comercio Electrónico</option>
+              <option value="trading">Trading e Inversiones</option>
+              <option value="marketing">Marketing Digital</option>
+              <option value="crypto">Criptoactivos y Blockchain</option>
+              <option value="otro">Otra actividad</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <span className="label-number">4</span>
+              Estructura Empresarial
+            </label>
+            <div className="radio-group">
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name="estructura"
+                  value="autonomo"
+                  checked={formData.estructura === 'autonomo'}
+                  onChange={(e) => setFormData({ ...formData, estructura: e.target.value })}
+                />
+                <div className="radio-content">
+                  <div className="radio-title">Trabajador Autónomo</div>
+                  <div className="radio-desc">Recomendado para ingresos hasta 60.000€</div>
+                </div>
+              </label>
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name="estructura"
+                  value="sl"
+                  checked={formData.estructura === 'sl'}
+                  onChange={(e) => setFormData({ ...formData, estructura: e.target.value })}
+                />
+                <div className="radio-content">
+                  <div className="radio-title">Sociedad Limitada (SL)</div>
+                  <div className="radio-desc">Recomendado para ingresos superiores a 60.000€</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <span className="label-number">5</span>
+              Parroquia de Residencia
+            </label>
+            <select
+              value={formData.parroquia}
+              onChange={(e) => setFormData({ ...formData, parroquia: e.target.value })}
+            >
+              <option value="">Seleccione parroquia</option>
+              {parroquias.map(p => (
+                <option key={p.value} value={p.value}>
+                  {p.label} - Alquiler medio: {p.alquiler}€/mes
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <span className="label-number">6</span>
+              Correo Electrónico Profesional
+            </label>
+            <input
+              type="email"
+              placeholder="correo@empresa.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+          </div>
+
+          <button
+            className="btn-calculate"
+            onClick={calcularImpuestos}
+            disabled={!formData.ingresos || !formData.pais || !formData.actividad || !formData.estructura || !formData.parroquia || !formData.email}
+          >
+            <Calculator size={20} />
+            Generar Análisis Fiscal
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ResultsView = () => {
+    if (!calculationResults) return null;
+
+    const { impuestos, costeVida, ahorro, ahorroMensual, parroquia, ingresos, estructura } = calculationResults;
+
+    return (
+      <div className="results-view">
+        <div className="results-header">
+          <div className="logo-small">
+            <Shield size={22} strokeWidth={2.5} />
+            <span>AndorraOS</span>
+          </div>
+        </div>
+
+        <div className="results-container">
+          <div className="results-intro">
+            <div className="success-badge">
+              <CheckCircle size={20} />
+              <span>Análisis Completado</span>
+            </div>
+            <h1>Ahorro Fiscal Estimado</h1>
+            <div className="main-saving">
+              {ahorro.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+              <span className="period">/año</span>
+            </div>
+            <p className="saving-monthly">Equivalente a {ahorroMensual.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€ mensuales</p>
+          </div>
+
+          <div className="results-grid">
+            <div className="result-card primary-card">
+              <div className="card-header">
+                <h3>Carga Fiscal en Andorra</h3>
+                <Building2 size={20} />
+              </div>
+              <div className="amount-display">
+                {impuestos.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+                <span className="amount-period">/año</span>
+              </div>
+              <div className="breakdown">
+                {estructura === 'autonomo' ? (
+                  <>
+                    <div className="breakdown-item">
+                      <span>IRPF</span>
+                      <span>{impuestos.irpf.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                    </div>
+                    <div className="breakdown-item">
+                      <span>Cotizaciones CASS</span>
+                      <span>{impuestos.cuotaAutonomos.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="breakdown-item">
+                      <span>Impuesto de Sociedades</span>
+                      <span>{impuestos.sociedades.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                    </div>
+                    <div className="breakdown-item">
+                      <span>IRPF sobre Nómina</span>
+                      <span>{impuestos.irpfSueldo.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                    </div>
+                    <div className="breakdown-item">
+                      <span>Cotizaciones CASS</span>
+                      <span>{impuestos.cuotaAutonomos.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="result-card">
+              <div className="card-header">
+                <h3>Coste de Vida - {parroquia}</h3>
+                <Home size={20} />
+              </div>
+              <div className="amount-display small">
+                {costeVida.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+                <span className="amount-period">/año</span>
+              </div>
+              <div className="breakdown">
+                <div className="breakdown-item">
+                  <span>Vivienda</span>
+                  <span>{costeVida.alquiler.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                </div>
+                <div className="breakdown-item">
+                  <span>Alimentación</span>
+                  <span>{costeVida.comida.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                </div>
+                <div className="breakdown-item">
+                  <span>Servicios y Otros</span>
+                  <span>{(costeVida.servicios + costeVida.transporte + costeVida.ocio).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="comparison-card">
+            <h3>Análisis Comparativo de Carga Fiscal</h3>
+            <div className="comparison-bars">
+              <div className="comparison-row">
+                <div className="comparison-label">
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3Crect width='3' height='2' fill='%23c60b1e'/%3E%3Crect width='3' height='1' y='1' fill='%23ffc400'/%3E%3C/svg%3E" alt="AD" width="24" height="16" />
+                  <span>Andorra</span>
+                </div>
+                <div className="comparison-bar-wrapper">
+                  <div 
+                    className="comparison-bar andorra"
+                    style={{ width: `${(impuestos.total / calculationResults.impuestosEspana) * 100}%` }}
+                  >
+                    <span>{impuestos.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}€</span>
+                  </div>
+                </div>
+              </div>
+              <div className="comparison-row">
+                <div className="comparison-label">
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3Crect width='3' height='2' fill='%23c60b1e'/%3E%3Crect width='3' height='0.67' y='0.67' fill='%23ffc400'/%3E%3C/svg%3E" alt="ES" width="24" height="16" />
+                  <span>España</span>
+                </div>
+                <div className="comparison-bar-wrapper">
+                  <div className="comparison-bar espana" style={{ width: '100%' }}>
+                    <span>{calculationResults.impuestosEspana.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}€</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="savings-highlight">
+              Reducción fiscal de {ahorro.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€ anuales ({((ahorro / calculationResults.impuestosEspana) * 100).toFixed(1)}% de ahorro)
+            </div>
+          </div>
+
+          <div className="checklist-card">
+            <h3>Plan de Implementación</h3>
+            <div className="checklist">
+              <div className="checklist-item">
+                <div className="check-icon">1</div>
+                <div>
+                  <strong>Solicitud de Residencia Activa</strong>
+                  <p>Tramitación del permiso de residencia y trabajo ante el Govern d'Andorra (plazo estimado: 90 días)</p>
+                </div>
+              </div>
+              <div className="checklist-item">
+                <div className="check-icon">2</div>
+                <div>
+                  <strong>Constitución de Actividad Económica</strong>
+                  <p>Alta en la CASS {estructura === 'sl' ? 'y constitución de sociedad limitada' : 'como trabajador autónomo'}</p>
+                </div>
+              </div>
+              <div className="checklist-item">
+                <div className="check-icon">3</div>
+                <div>
+                  <strong>Establecimiento de Residencia</strong>
+                  <p>Contrato de alquiler en {parroquia} (presupuesto estimado: {parroquias.find(p => p.label === parroquia)?.alquiler}€ mensuales)</p>
+                </div>
+              </div>
+              <div className="checklist-item">
+                <div className="check-icon">4</div>
+                <div>
+                  <strong>Empadronamiento Municipal</strong>
+                  <p>Registro en el Comú de la parroquia de residencia y obtención de certificado</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="premium-cta">
+            <div className="premium-content">
+              <Briefcase size={28} />
+              <h3>Servicio de Consultoría Profesional</h3>
+              <p>Acceda a un análisis exhaustivo con comparativas internacionales, documentación legal y asesoramiento personalizado</p>
+              <div className="premium-features">
+                <span><CheckCircle size={14} /> Informe PDF Ejecutivo</span>
+                <span><CheckCircle size={14} /> Consultoría Individual 30min</span>
+                <span><CheckCircle size={14} /> Plantillas Documentales</span>
+                <span><CheckCircle size={14} /> Actualizaciones 2026</span>
+              </div>
+              <button className="btn-premium" onClick={() => setCurrentView('premium')}>
+                Solicitar Servicio Premium
+              </button>
+            </div>
+          </div>
+
+          <div className="actions">
+            <button className="btn-secondary" onClick={() => {
+              const text = `Análisis Fiscal AndorraOS\n\nAhorro anual estimado: ${ahorro.toLocaleString('es-ES')}€\nCarga fiscal Andorra: ${impuestos.total.toLocaleString('es-ES')}€\nCoste de vida anual: ${costeVida.total.toLocaleString('es-ES')}€`;
+              navigator.clipboard.writeText(text);
+              alert('Información copiada al portapapeles');
+            }}>
+              Compartir Análisis
+            </button>
+            <button className="btn-primary" onClick={() => setCurrentView('calculator')}>
+              Nuevo Análisis
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const PremiumPage = () => (
+    <div className="premium-page">
+      <div className="premium-header">
+        <button className="back-btn" onClick={() => setCurrentView('results')}>
+          ← Volver al análisis
+        </button>
+        <div className="logo-small">
+          <Shield size={22} strokeWidth={2.5} />
+          <span>AndorraOS Professional</span>
+        </div>
+      </div>
+
+      <div className="premium-container">
+        <div className="premium-hero">
+          <div className="premium-badge">
+            <Star size={18} />
+            Servicio Premium
+          </div>
+          <h1>Consultoría Profesional Integral</h1>
+          <p>Análisis exhaustivo y acompañamiento personalizado en su proceso de relocalización fiscal</p>
+          <div className="premium-price">
+            <span className="price-value">49€</span>
+            <span className="price-period">pago único</span>
+          </div>
+        </div>
+
+        <div className="premium-includes">
+          <h3>Servicios Incluidos</h3>
+          <div className="includes-grid">
+            <div className="include-item">
+              <FileText size={28} />
+              <h4>Informe Ejecutivo PDF</h4>
+              <p>Documento profesional de más de 30 páginas con análisis detallado de su caso particular</p>
+            </div>
+            <div className="include-item">
+              <Users size={28} />
+              <h4>Sesión de Consultoría</h4>
+              <p>30 minutos de asesoramiento personalizado con experto en fiscalidad andorrana</p>
+            </div>
+            <div className="include-item">
+              <FileText size={28} />
+              <h4>Documentación Legal</h4>
+              <p>Modelos de contratos, certificados y plantillas necesarias para el proceso</p>
+            </div>
+            <div className="include-item">
+              <CheckCircle size={28} />
+              <h4>Hoja de Ruta Detallada</h4>
+              <p>Plan paso a paso con plazos específicos y estimación de costes completa</p>
+            </div>
+            <div className="include-item">
+              <MapPin size={28} />
+              <h4>Análisis de Parroquias</h4>
+              <p>Evaluación comparativa detallada de las siete parroquias del Principado</p>
+            </div>
+            <div className="include-item">
+              <Mail size={28} />
+              <h4>Soporte Continuado</h4>
+              <p>Asistencia por correo electrónico durante 30 días desde la contratación</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="premium-comparison">
+          <h3>Comparativa de Servicios</h3>
+          <table className="comparison-table">
+            <thead>
+              <tr>
+                <th>Características</th>
+                <th>Análisis Básico</th>
+                <th className="premium-col">Servicio Premium</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cálculo de obligaciones fiscales</td>
+                <td><CheckCircle size={16} /></td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+              <tr>
+                <td>Análisis de coste de vida</td>
+                <td><CheckCircle size={16} /></td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+              <tr>
+                <td>Informe ejecutivo PDF</td>
+                <td>—</td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+              <tr>
+                <td>Comparativa multi-jurisdicción</td>
+                <td>—</td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+              <tr>
+                <td>Consultoría personalizada</td>
+                <td>—</td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+              <tr>
+                <td>Plantillas y documentación</td>
+                <td>—</td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+              <tr>
+                <td>Soporte profesional continuado</td>
+                <td>—</td>
+                <td><CheckCircle size={16} /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="premium-cta-final">
+          <button className="btn-premium-large">
+            Contratar Servicio Premium
+          </button>
+          <p className="guarantee">Pago seguro • Entrega inmediata • Garantía de satisfacción 14 días</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="andorra-os">
+      {currentView === 'landing' && <LandingPage />}
+      {currentView === 'calculator' && <CalculatorForm />}
+      {currentView === 'results' && <ResultsView />}
+      {currentView === 'premium' && <PremiumPage />}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        .andorra-os {
+          font-family: 'Inter', sans-serif;
+          background: #f8f9fa;
+          min-height: 100vh;
+        }
+
+        .navbar {
+          background: #ffffff;
+          border-bottom: 1px solid #dee2e6;
+          padding: 1rem 0;
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+
+        .nav-content {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1a1f36;
+          letter-spacing: -0.02em;
+        }
+
+        .logo svg {
+          color: #2c5282;
+        }
+
+        .logo-small {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #1a1f36;
+        }
+
+        .btn-primary {
+          background: #2c5282;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 0.95rem;
+        }
+
+        .btn-primary:hover {
+          background: #2a4365;
+        }
+
+        .btn-hero {
+          background: #2c5282;
+          color: white;
+          border: none;
+          padding: 1rem 2rem;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 1rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin: 2rem 0;
+        }
+
+        .btn-hero:hover {
+          background: #2a4365;
+        }
+
+        .btn-secondary {
+          background: white;
+          color: #495057;
+          border: 1px solid #dee2e6;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 0.95rem;
+        }
+
+        .btn-secondary:hover {
+          border-color: #adb5bd;
+        }
+
+        .btn-calculate {
+          width: 100%;
+          background: #2c5282;
+          color: white;
+          border: none;
+          padding: 1rem;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 1rem;
+          margin-top: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+        }
+
+        .btn-calculate:hover:not(:disabled) {
+          background: #2a4365;
+        }
+
+        .btn-calculate:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .btn-premium {
+          background: #2c5282;
+          color: white;
+          border: none;
+          padding: 0.875rem 1.75rem;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 0.95rem;
+          margin-top: 1.5rem;
+        }
+
+        .btn-premium:hover {
+          background: #2a4365;
+        }
+
+        .btn-premium-large {
+          background: #2c5282;
+          color: white;
+          border: none;
+          padding: 1.25rem 2.5rem;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 1.1rem;
+        }
+
+        .btn-premium-large:hover {
+          background: #2a4365;
+        }
+
+        .back-btn {
+          background: none;
+          border: none;
+          color: #6c757d;
+          font-size: 0.95rem;
+          cursor: pointer;
+          padding: 0.5rem 1rem;
+          margin-bottom: 1rem;
+          transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+          color: #495057;
+        }
+
+        .hero {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 4rem 2rem;
+          text-align: center;
+        }
+
+        .hero-content {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #e9ecef;
+          color: #495057;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+          font-size: 3rem;
+          font-weight: 700;
+          color: #1a1f36;
+          line-height: 1.2;
+          margin-bottom: 1.5rem;
+          letter-spacing: -0.02em;
+        }
+
+        .gradient-text {
+          color: #2c5282;
+        }
+
+        .hero-subtitle {
+          font-size: 1.125rem;
+          color: #495057;
+          line-height: 1.7;
+          margin-bottom: 1rem;
+        }
+
+        .trust-indicators {
+          display: flex;
+          justify-content: center;
+          gap: 2rem;
+          flex-wrap: wrap;
+          margin-top: 2rem;
+        }
+
+        .trust-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #495057;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+
+        .trust-item svg {
+          color: #28a745;
+        }
+
+        .hero-stats {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
+          margin: 4rem 0 0;
+        }
+
+        .stat-card {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+          transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+          width: 56px;
+          height: 56px;
+          background: #e9ecef;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 1rem;
+          color: #2c5282;
+        }
+
+        .stat-value {
+          font-size: 2.25rem;
+          font-weight: 700;
+          color: #1a1f36;
+          margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+          color: #6c757d;
+          font-size: 0.95rem;
+          font-weight: 500;
+        }
+
+        .features {
+          max-width: 1200px;
+          margin: 4rem auto;
+          padding: 0 2rem;
+        }
+
+        .features h2 {
+          font-size: 2.25rem;
+          font-weight: 700;
+          text-align: center;
+          color: #1a1f36;
+          margin-bottom: 3rem;
+          letter-spacing: -0.02em;
+        }
+
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 2rem;
+        }
+
+        .feature-box {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+          transition: all 0.2s ease;
+        }
+
+        .feature-box:hover {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .feature-icon {
+          color: #2c5282;
+          margin-bottom: 1.25rem;
+        }
+
+        .feature-box h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 1rem;
+        }
+
+        .feature-box p {
+          color: #6c757d;
+          line-height: 1.6;
+          font-size: 0.95rem;
+        }
+
+        .cta-section {
+          max-width: 1200px;
+          margin: 4rem auto;
+          padding: 0 2rem;
+        }
+
+        .cta-box {
+          background: #2c5282;
+          border-radius: 8px;
+          padding: 4rem 3rem;
+          text-align: center;
+          color: white;
+        }
+
+        .cta-box h2 {
+          font-size: 2.25rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+          letter-spacing: -0.02em;
+        }
+
+        .cta-box p {
+          font-size: 1.125rem;
+          margin-bottom: 2rem;
+          opacity: 0.95;
+        }
+
+        .calculator-view,
+        .results-view,
+        .premium-page {
+          min-height: 100vh;
+          padding: 2rem;
+        }
+
+        .calculator-header,
+        .results-header,
+        .premium-header {
+          max-width: 900px;
+          margin: 0 auto 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .calculator-container,
+        .results-container,
+        .premium-container {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+
+        .calculator-intro {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        .calculator-intro h1 {
+          font-size: 2.25rem;
+          font-weight: 700;
+          color: #1a1f36;
+          margin-bottom: 1rem;
+          letter-spacing: -0.02em;
+        }
+
+        .calculator-intro p {
+          font-size: 1.05rem;
+          color: #6c757d;
+        }
+
+        .form-container {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2.5rem;
+        }
+
+        .form-group {
+          margin-bottom: 2rem;
+        }
+
+        .form-group label {
+          display: block;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 0.75rem;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .label-number {
+          background: #2c5282;
+          color: white;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        .input-wrapper {
+          position: relative;
+        }
+
+        .form-group input,
+        .form-group select {
+          width: 100%;
+          padding: 0.875rem 1rem;
+          border: 1px solid #ced4da;
+          border-radius: 6px;
+          font-size: 1rem;
+          transition: all 0.2s ease;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+          outline: none;
+          border-color: #2c5282;
+        }
+
+        .input-suffix {
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #6c757d;
+          font-weight: 500;
+          pointer-events: none;
+        }
+
+        .radio-group {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .radio-option {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem;
+          border: 1px solid #dee2e6;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .radio-option:hover {
+          border-color: #adb5bd;
+        }
+
+        .radio-option input[type="radio"] {
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+        }
+
+        .radio-content {
+          flex: 1;
+        }
+
+        .radio-title {
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 0.25rem;
+        }
+
+        .radio-desc {
+          font-size: 0.875rem;
+          color: #6c757d;
+        }
+
+        .results-intro {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        .success-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #d4edda;
+          color: #155724;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          font-weight: 500;
+          margin-bottom: 1.5rem;
+          font-size: 0.9rem;
+        }
+
+        .results-intro h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #1a1f36;
+          margin-bottom: 1rem;
+          letter-spacing: -0.02em;
+        }
+
+        .main-saving {
+          font-size: 3.5rem;
+          font-weight: 800;
+          color: #28a745;
+          margin-bottom: 0.5rem;
+          letter-spacing: -0.02em;
+        }
+
+        .main-saving .period {
+          font-size: 1.5rem;
+          color: #6c757d;
+          font-weight: 500;
+        }
+
+        .saving-monthly {
+          font-size: 1.05rem;
+          color: #6c757d;
+        }
+
+        .results-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 2rem;
+          margin-bottom: 2rem;
+        }
+
+        .result-card {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+        }
+
+        .primary-card {
+          border-top: 3px solid #2c5282;
+        }
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+        }
+
+        .card-header h3 {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #1a1f36;
+        }
+
+        .card-header svg {
+          color: #6c757d;
+        }
+
+        .amount-display {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: #1a1f36;
+          margin-bottom: 1.5rem;
+          letter-spacing: -0.02em;
+        }
+
+        .amount-display.small {
+          font-size: 2rem;
+        }
+
+        .amount-period {
+          font-size: 1.125rem;
+          color: #6c757d;
+          font-weight: 500;
+        }
+
+        .breakdown {
+          border-top: 1px solid #e9ecef;
+          padding-top: 1rem;
+        }
+
+        .breakdown-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.625rem 0;
+          color: #6c757d;
+          font-size: 0.95rem;
+        }
+
+        .breakdown-item span:last-child {
+          font-weight: 600;
+          color: #1a1f36;
+        }
+
+        .comparison-card {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+          margin-bottom: 2rem;
+        }
+
+        .comparison-card h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 1.5rem;
+        }
+
+        .comparison-bars {
+          margin-bottom: 1.5rem;
+        }
+
+        .comparison-row {
+          margin-bottom: 1rem;
+        }
+
+        .comparison-label {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #1a1f36;
+          font-size: 0.95rem;
+        }
+
+        .comparison-bar-wrapper {
+          background: #f1f3f5;
+          border-radius: 4px;
+          overflow: hidden;
+          height: 44px;
+        }
+
+        .comparison-bar {
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          padding-right: 1rem;
+          color: white;
+          font-weight: 600;
+          transition: width 1s ease;
+          font-size: 0.95rem;
+        }
+
+        .comparison-bar.andorra {
+          background: #28a745;
+        }
+
+        .comparison-bar.espana {
+          background: #dc3545;
+        }
+
+        .savings-highlight {
+          background: #d4edda;
+          color: #155724;
+          padding: 1rem 1.25rem;
+          border-radius: 6px;
+          text-align: center;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+
+        .checklist-card {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+          margin-bottom: 2rem;
+        }
+
+        .checklist-card h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 1.5rem;
+        }
+
+        .checklist {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .checklist-item {
+          display: flex;
+          gap: 1rem;
+          padding: 1rem;
+          background: #f8f9fa;
+          border-radius: 6px;
+        }
+
+        .check-icon {
+          width: 28px;
+          height: 28px;
+          background: #2c5282;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          flex-shrink: 0;
+          font-size: 0.875rem;
+        }
+
+        .checklist-item strong {
+          display: block;
+          color: #1a1f36;
+          margin-bottom: 0.25rem;
+          font-size: 0.95rem;
+        }
+
+        .checklist-item p {
+          color: #6c757d;
+          font-size: 0.875rem;
+          line-height: 1.5;
+        }
+
+        .premium-cta {
+          background: #f8f9fa;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+
+        .premium-content svg {
+          color: #2c5282;
+          margin-bottom: 1rem;
+        }
+
+        .premium-content h3 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 0.75rem;
+        }
+
+        .premium-content p {
+          color: #6c757d;
+          margin-bottom: 1.5rem;
+          font-size: 1rem;
+          line-height: 1.6;
+        }
+
+        .premium-features {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .premium-features span {
+          background: white;
+          padding: 0.5rem 0.875rem;
+          border-radius: 4px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #495057;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .premium-features svg {
+          color: #28a745;
+        }
+
+        .actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+        }
+
+        .premium-hero {
+          text-align: center;
+          margin-bottom: 4rem;
+        }
+
+        .premium-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #e9ecef;
+          color: #495057;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          font-weight: 500;
+          margin-bottom: 1.5rem;
+          font-size: 0.9rem;
+        }
+
+        .premium-hero h1 {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: #1a1f36;
+          margin-bottom: 1rem;
+          letter-spacing: -0.02em;
+        }
+
+        .premium-hero p {
+          font-size: 1.125rem;
+          color: #6c757d;
+          margin-bottom: 2rem;
+        }
+
+        .premium-price {
+          display: flex;
+          align-items: baseline;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        .price-value {
+          font-size: 3.5rem;
+          font-weight: 800;
+          color: #2c5282;
+          letter-spacing: -0.02em;
+        }
+
+        .price-period {
+          color: #6c757d;
+          font-size: 1.125rem;
+        }
+
+        .premium-includes {
+          margin-bottom: 4rem;
+        }
+
+        .premium-includes h3 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+
+        .includes-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.5rem;
+        }
+
+        .include-item {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 1.75rem;
+          text-align: center;
+        }
+
+        .include-item svg {
+          color: #2c5282;
+          margin-bottom: 1rem;
+        }
+
+        .include-item h4 {
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 0.5rem;
+          font-size: 1rem;
+        }
+
+        .include-item p {
+          color: #6c757d;
+          font-size: 0.875rem;
+          line-height: 1.5;
+        }
+
+        .premium-comparison {
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          padding: 2rem;
+          margin-bottom: 3rem;
+        }
+
+        .premium-comparison h3 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1a1f36;
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+
+        .comparison-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+          padding: 0.875rem 1rem;
+          text-align: left;
+          border-bottom: 1px solid #e9ecef;
+          font-size: 0.95rem;
+        }
+
+        .comparison-table th {
+          font-weight: 600;
+          color: #1a1f36;
+          background: #f8f9fa;
+        }
+
+        .comparison-table .premium-col {
+          background: #e9ecef;
+          color: #1a1f36;
+          font-weight: 600;
+        }
+
+        .comparison-table svg {
+          color: #28a745;
+        }
+
+        .comparison-table td {
+          color: #495057;
+        }
+
+        .premium-cta-final {
+          text-align: center;
+        }
+
+        .guarantee {
+          margin-top: 1rem;
+          color: #6c757d;
+          font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+          .hero h1 {
+            font-size: 2.25rem;
+          }
+
+          .hero-stats,
+          .features-grid,
+          .results-grid,
+          .includes-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .comparison-table {
+            font-size: 0.8rem;
+          }
+
+          .form-container {
+            padding: 1.75rem 1.25rem;
+          }
+
+          .main-saving {
+            font-size: 2.5rem;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default AndorraOSCalculator;
