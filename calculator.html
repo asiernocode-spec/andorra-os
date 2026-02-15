@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculadora Fiscal – AndorraOS</title>
+  <title>AndorraOS – Calculadora Fiscal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -13,13 +13,6 @@
 
       <section class="left">
         <div class="left-inner">
-
-          <div class="badge">
-            <div class="badge-dot"></div>
-            <span>Simulación Fiscal</span>
-            <div class="badge-divider"></div>
-            <span>AndorraOS 2026</span>
-          </div>
 
           <div class="logo-row">
             <div class="logo-main">
@@ -33,64 +26,57 @@
 
           <div class="title-block">
             <div class="title-main">
-              Calculadora fiscal<br />
+              Simulación fiscal<br />
               <span>España vs Andorra</span>
             </div>
             <div class="title-sub">
-              Introduce tus datos y obtén una estimación fiscal comparativa.
+              Introduce tus datos y obtén un análisis detallado.
             </div>
           </div>
 
-          <div class="form-block">
+          <form id="calc-form">
 
-            <label class="form-label">Ingresos anuales (€)</label>
-            <input id="income" type="number" class="form-input" placeholder="Ej: 85000" />
+            <label>Ingresos anuales (€)</label>
+            <input type="number" id="ingresos" required />
 
-            <label class="form-label">Actividad</label>
-            <select id="activity" class="form-input">
+            <label>País actual</label>
+            <select id="pais" required>
+              <option value="espana">España</option>
+              <option value="otro">Otro</option>
+            </select>
+
+            <label>Estructura</label>
+            <select id="estructura" required>
               <option value="autonomo">Autónomo</option>
               <option value="empresa">Empresa</option>
             </select>
 
-            <label class="form-label">Parroquia (Andorra)</label>
-            <select id="parish" class="form-input">
+            <label>Parroquia en Andorra</label>
+            <select id="parroquia" required>
               <option value="andorra-la-vella">Andorra la Vella</option>
-              <option value="escales-engordany">Escaldes-Engordany</option>
+              <option value="escaldes-engordany">Escaldes-Engordany</option>
+              <option value="encamp">Encamp</option>
               <option value="la-massana">La Massana</option>
               <option value="ordino">Ordino</option>
-              <option value="sant-julia">Sant Julià de Lòria</option>
-              <option value="encamp">Encamp</option>
               <option value="canillo">Canillo</option>
+              <option value="sant-julia">Sant Julià de Lòria</option>
             </select>
 
-            <button class="btn-primary" onclick="calculate()">
+            <label>Email</label>
+            <input type="email" id="email" required />
+
+            <button type="submit" class="btn-primary">
               <span class="icon">➜</span>
               <span>Calcular</span>
             </button>
 
-          </div>
+          </form>
 
-        </div>
-      </section>
+          <div id="resultados" class="resultados"></div>
 
-      <section class="right">
-        <div class="right-inner">
-
-          <div class="right-header">
-            <div class="right-title">Resultados</div>
-            <div class="right-tag">Comparativa 2026</div>
-          </div>
-
-          <div id="results" class="results-box">
-            <p class="right-subtitle">Introduce tus datos y pulsa calcular.</p>
-          </div>
-
-          <div class="cta-block">
-            <a href="index.html" class="btn-primary">
-              <span class="icon">←</span>
-              <span>Volver</span>
-            </a>
-          </div>
+          <button id="btn-pdf" class="btn-secondary" style="display:none;">
+            Descargar informe PDF
+          </button>
 
         </div>
       </section>
@@ -98,6 +84,61 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    // Precargar email
+    const storedEmail = localStorage.getItem('andorraos_email');
+    if (storedEmail) {
+      document.getElementById('email').value = storedEmail;
+    }
+
+    // Cálculo simple
+    document.getElementById('calc-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const ingresos = parseFloat(document.getElementById('ingresos').value);
+      const estructura = document.getElementById('estructura').value;
+
+      let irpfEsp = ingresos * 0.30;
+      let irpfAnd = ingresos <= 24000 ? 0 : (ingresos - 24000) * 0.05;
+
+      const ahorro = irpfEsp - irpfAnd;
+
+      document.getElementById('resultados').innerHTML = `
+        <h3>Resultados</h3>
+        <p><strong>IRPF España:</strong> ${irpfEsp.toFixed(2)} €</p>
+        <p><strong>IRPF Andorra:</strong> ${irpfAnd.toFixed(2)} €</p>
+        <p><strong>Ahorro estimado:</strong> ${ahorro.toFixed(2)} €</p>
+      `;
+
+      document.getElementById('btn-pdf').style.display = 'block';
+    });
+
+    // PDF
+    document.getElementById('btn-pdf').addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text('Informe Fiscal AndorraOS', 10, 20);
+
+      doc.setFontSize(12);
+      doc.text(`Ingresos: ${document.getElementById('ingresos').value} €`, 10, 40);
+      doc.text(`Estructura: ${document.getElementById('estructura').value}`, 10, 50);
+      doc.text(`Email: ${document.getElementById('email').value}`, 10, 60);
+
+      const res = document.getElementById('resultados').innerText.split('\n');
+      let y = 80;
+      res.forEach(line => {
+        doc.text(line, 10, y);
+        y += 10;
+      });
+
+      doc.save('informe-andorraos.pdf');
+    });
+  </script>
+
 </body>
 </html>
