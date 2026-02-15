@@ -85,7 +85,7 @@
   </div>
 
   <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-V3ZCwH0z7LxyzKDn5XxhxL7sRKqzZo4PMBVXgS5aXoaZySUdkGFUTkOcJCIZy9FHn5Vf3L7hIwrKyYVJZZzqVg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
     // Precargar email
@@ -121,17 +121,21 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
+      const ingresos = document.getElementById('ingresos').value;
+      const estructura = document.getElementById('estructura').value;
+      const email = document.getElementById('email').value;
+      const resultados = document.getElementById('resultados').innerText;
+
       doc.setFontSize(18);
       doc.text('Informe Fiscal AndorraOS', 10, 20);
 
       doc.setFontSize(12);
-      doc.text(`Ingresos: ${document.getElementById('ingresos').value} €`, 10, 40);
-      doc.text(`Estructura: ${document.getElementById('estructura').value}`, 10, 50);
-      doc.text(`Email: ${document.getElementById('email').value}`, 10, 60);
+      doc.text(`Email: ${email}`, 10, 40);
+      doc.text(`Ingresos: ${ingresos} €`, 10, 50);
+      doc.text(`Estructura: ${estructura}`, 10, 60);
 
-      const res = document.getElementById('resultados').innerText.split('\n');
       let y = 80;
-      res.forEach(line => {
+      resultados.split('\n').forEach(line => {
         doc.text(line, 10, y);
         y += 10;
       });
