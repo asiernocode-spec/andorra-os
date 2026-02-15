@@ -45,9 +45,13 @@
             </div>
           </div>
 
-          <!-- LEAD FORM -->
+          <!-- LEAD FORM (FORMSPREE) -->
           <div class="cta-block">
-            <form class="lead-form" onsubmit="handleLeadSubmit(event)">
+            <form action="https://formspree.io/f/mvzbaylz" method="POST" id="lead-form">
+
+              <!-- Redirección automática tras enviar -->
+              <input type="hidden" name="_redirect" value="https://asiernocode-spec.github.io/andorra-os/calculator.html" />
+
               <input
                 type="email"
                 name="email"
@@ -55,11 +59,13 @@
                 placeholder="Tu email para recibir el informe"
                 required
               />
+
               <button type="submit" class="btn-primary">
                 <span class="icon">➜</span>
                 <span>Iniciar análisis</span>
               </button>
             </form>
+
             <div class="cta-note">
               Informe fiscal personalizado · 100% gratuito
             </div>
@@ -135,13 +141,12 @@
     </div>
   </div>
 
+  <!-- Guardar email en localStorage -->
   <script>
-    function handleLeadSubmit(e) {
-      e.preventDefault();
-      const email = document.getElementById('lead-email').value;
-      localStorage.setItem('andorraos_email', email);
-      window.location.href = 'calculator.html';
-    }
+    const emailInput = document.getElementById('lead-email');
+    emailInput.addEventListener('input', () => {
+      localStorage.setItem('andorraos_email', emailInput.value);
+    });
   </script>
 
 </body>
